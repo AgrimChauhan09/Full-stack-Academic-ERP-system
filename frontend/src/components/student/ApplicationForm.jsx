@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './student.css';
+import API from "../../services/api";
 
 const ApplicationForm = () => {
   const navigate = useNavigate();
@@ -117,38 +118,42 @@ const ApplicationForm = () => {
     return `REC${year}${random}`;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    
-    setLoading(true);
-    
-    try {
-      const applicationId = generateApplicationId();
-      const submissionData = {
-        ...formData,
-        applicationId,
-        applicationDate: new Date().toISOString()
-      };
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-      const response = await axios.post('http://localhost:5000/api/students/apply', formData);
-      
-      if (response.data.success) {
-        setSubmitted(true);
-        setFormData(prev => ({ ...prev, applicationId }));
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    } catch (error) {
-      console.error('Application submission error:', error);
-      alert('Failed to submit application. Please try again.');
-    } finally {
-      setLoading(false);
+  if (!validateForm()) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const applicationId = generateApplicationId();
+
+    const submissionData = {
+      ...formData,
+      applicationId,
+      applicationDate: new Date().toISOString()
+    };
+
+    const response = await axios.post(
+      "https://full-stack-academic-erp-system.onrender.com/api/students/apply",
+      submissionData
+    );
+
+    if (response.data.success) {
+      setSubmitted(true);
+      setFormData((prev) => ({ ...prev, applicationId }));
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
-  };
+  } catch (error) {
+    console.error("Application submission error:", error);
+    alert("Failed to submit application. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (submitted) {
     return (
